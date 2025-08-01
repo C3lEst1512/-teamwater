@@ -1,156 +1,222 @@
-# TeamWater Donations API Proxy
+# TeamWater Flask API
 
-This is a simple Python Flask application that proxies and exposes TeamWater/Tiltify donation-related data through custom JSON REST API endpoints.
-
-It fetches data from the official Tiltify GraphQL API and provides easy-to-use endpoints for:
-
-- **Donor Leaderboard** (`/leaderboard`)  
-- **Latest Donations** (`/donations`)  
-- **Total Amount Raised** (`/total_raised`)  
-
----
+A Flask-based REST API that provides access to Tiltify donation data through GraphQL queries. This application fetches leaderboard data, latest donations, and total amount raised for fundraising campaigns.
 
 ## Features
 
-- Fetch donor leaderboard data with configurable limit
-- Fetch latest donation entries with pagination support
-- Retrieve total amount raised for a specific fundraising campaign (fact ID)
-- Uses GraphQL queries to communicate with Tiltify API
-- Simple JSON output for easy integration with frontends or other services
-- Accepts optional query parameters for `limit` and `fact_id`
+- **Leaderboard Endpoint**: Get top donors for a campaign
+- **Latest Donations Endpoint**: Retrieve recent donation activity
+- **Total Raised Endpoint**: Get the total amount raised for a campaign
+- **Configurable Campaign ID**: Support for multiple fundraising campaigns
+- **Error Handling**: Graceful error responses with proper HTTP status codes
 
----
+## API Endpoints
 
-## Prerequisites
+### 1. Leaderboard
 
-- Python 3.6+
-- [Flask](https://flask.palletsprojects.com/)
-- [requests](https://docs.python-requests.org/)
+**Endpoint**: `GET /leaderboard`
 
----
+**Description**: Retrieves the top donors for a specific fundraising campaign.
 
-## Installation
+**Query Parameters**:
+- `limit` (optional): Number of donors to return (default: 5, max: configurable)
+- `fact_id` (optional): Campaign ID (default: "0478358a-c4ff-4ab0-9cc7-5f0b328df9dc")
 
-1. Clone or download this repository or save the Flask app script (`app.py`) to your machine.
+**Example Request**:
+```
+GET /leaderboard?limit=10&fact_id=your-campaign-id
+```
 
-2. Create and activate a Python virtual environment (optional but recommended):
-
-    ```
-    python3 -m venv venv
-    source venv/bin/activate   # On Windows: venv\Scripts\activate
-    ```
-
-3. Install dependencies via pip:
-
-    ```
-    pip install flask requests
-    ```
-
----
-
-## Usage
-
-1. Run the Flask app:
-
-    ```
-    python app.py
-    ```
-
-2. The server will start on port 5000 by default.
-
-3. Access the API endpoints via your browser, curl, or any HTTP client:
-
-    - **Donor Leaderboard**  
-      Retrieve top donors  
-      `GET http://localhost:5000/leaderboard?limit=10&fact_id=YOUR_FACT_ID`
-
-    - **Latest Donations**  
-      Retrieve recent donations  
-      `GET http://localhost:5000/donations?limit=20&fact_id=YOUR_FACT_ID`
-
-    - **Total Amount Raised**  
-      Get total funds raised  
-      `GET http://localhost:5000/total_raised?fact_id=YOUR_FACT_ID`
-
-   > If `fact_id` is omitted, the default fundraising event ID (`0478358a-c4ff-4ab0-9cc7-5f0b328df9dc`) will be used.
-
----
-
-## Example Requests
-
-curl "http://localhost:5000/leaderboard?limit=5"
-curl "http://localhost:5000/donations?limit=10"
-curl "http://localhost:5000/total_raised"
-
-text
-
----
-
-## Response Example
-
-### `/leaderboard`
-
+**Example Response**:
+```json
 [
-{
-"id": "a0e76ed7-a39d-5e26-9b1c-22756fca0f36",
-"name": "Shopify",
-"amount": 500000,
-"currency": "USD",
-"comment": "For the Lorax - but wetter",
-"avatar": "https://assets.tiltify.com/assets/default-avatar.png"
-},
-...
+  {
+    "id": "donor-id",
+    "name": "Donor Name",
+    "amount": 100.0,
+    "currency": "USD",
+    "comment": "Great cause!",
+    "avatar": "https://example.com/avatar.jpg"
+  }
 ]
+```
 
-text
+### 2. Latest Donations
 
-### `/donations`
+**Endpoint**: `GET /donations`
 
+**Description**: Retrieves the most recent donations for a campaign.
+
+**Query Parameters**:
+- `limit` (optional): Number of donations to return (default: 10)
+- `fact_id` (optional): Campaign ID (default: "0478358a-c4ff-4ab0-9cc7-5f0b328df9dc")
+
+**Example Request**:
+```
+GET /donations?limit=20&fact_id=your-campaign-id
+```
+
+**Example Response**:
+```json
 [
-{
-"id": "55695045-aea4-4041-a16f-e6b1a867ea65",
-"donor_name": "Aljosa Vukovic",
-"donor_comment": "Thank you for keeping the planet ...",
-"amount": 1.0,
-"currency": "USD",
-"completed_at": "2025-08-01T17:13:14.082470Z",
-"fact_link": "https://tiltify.com/wateraid-america/teamwater",
-"ownership": "WaterAid America"
-},
-...
+  {
+    "id": "donation-id",
+    "donor_name": "Donor Name",
+    "donor_comment": "Supporting the cause!",
+    "amount": 50.0,
+    "currency": "USD",
+    "completed_at": "2024-01-15T10:30:00Z",
+    "fact_link": "https://tiltify.com/campaign-link",
+    "ownership": "Campaign Owner"
+  }
 ]
+```
 
-text
+### 3. Total Amount Raised
 
-### `/total_raised`
+**Endpoint**: `GET /total_raised`
 
+**Description**: Gets the total amount raised for a specific campaign.
+
+**Query Parameters**:
+- `fact_id` (optional): Campaign ID (default: "0478358a-c4ff-4ab0-9cc7-5f0b328df9dc")
+
+**Example Request**:
+```
+GET /total_raised?fact_id=your-campaign-id
+```
+
+**Example Response**:
+```json
 {
-"total_raised": "707787.09",
-"currency": "USD"
+  "total_raised": "1500.00",
+  "currency": "USD"
 }
+```
 
-text
+## Setup and Installation
 
----
+### Prerequisites
 
-## Notes
+- Python 3.7 or higher
+- pip (Python package installer)
 
-- This app does **not** handle authentication. If the upstream API endpoints require API keys or tokens in the future, update the headers accordingly.
-- For production usage, consider running the Flask app behind a production server (e.g., Gunicorn, uWSGI) and add proper error handling, logging, and caching.
-- Feel free to extend this app with additional endpoints or integrations!
+### Installation
 
----
+1. **Clone or download the project files**
+
+2. **Install required dependencies**:
+   ```bash
+   pip install flask requests
+   ```
+
+3. **Run the application**:
+   ```bash
+   python app.py
+   ```
+
+The server will start on `http://localhost:5000` with debug mode enabled.
+
+### Environment Configuration
+
+The application uses the following default configuration:
+- **Tiltify GraphQL URL**: `https://api.tiltify.com/`
+- **Default Campaign ID**: `0478358a-c4ff-4ab0-9cc7-5f0b328df9dc`
+- **Server Port**: 5000
+
+## Usage Examples
+
+### Using curl
+
+```bash
+# Get top 5 donors
+curl http://localhost:5000/leaderboard
+
+# Get latest 10 donations
+curl http://localhost:5000/donations
+
+# Get total amount raised
+curl http://localhost:5000/total_raised
+
+# Get top 10 donors for a specific campaign
+curl "http://localhost:5000/leaderboard?limit=10&fact_id=your-campaign-id"
+```
+
+### Using JavaScript/Fetch
+
+```javascript
+// Get leaderboard
+fetch('http://localhost:5000/leaderboard?limit=5')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+// Get latest donations
+fetch('http://localhost:5000/donations?limit=10')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+// Get total raised
+fetch('http://localhost:5000/total_raised')
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+## Error Handling
+
+The API returns appropriate HTTP status codes and error messages:
+
+- **200**: Successful response
+- **500**: Server error (with error details in response body)
+
+Example error response:
+```json
+{
+  "error": "Failed to fetch data from Tiltify API"
+}
+```
+
+## Technical Details
+
+- **Framework**: Flask
+- **HTTP Client**: requests library
+- **Data Format**: JSON
+- **API Type**: RESTful
+- **Backend**: Tiltify GraphQL API
+
+## Development
+
+### Project Structure
+
+```
+teamwater/
+├── app.py          # Main Flask application
+├── donations.py    # Donation-related functionality
+├── latest.py       # Latest donations functionality
+├── leaderboard.py  # Leaderboard functionality
+└── README.md       # This file
+```
+
+### Adding New Endpoints
+
+To add new endpoints, follow the pattern established in the code:
+
+1. Create a GraphQL query function
+2. Add a Flask route handler
+3. Include proper error handling
+4. Document the endpoint in this README
 
 ## License
 
-This project is provided "as is" without warranty. Use at your own risk.
+This project is open source and available under the MIT License.
 
----
+## Contributing
 
-## Contact
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-If you have any questions or need assistance, feel free to reach out!
+## Support
 
----
-
-Enjoy your TeamWater data API! 🚀
+For issues or questions, please create an issue in the repository or contact the development team.
