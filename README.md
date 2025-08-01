@@ -1,222 +1,105 @@
-# TeamWater Flask API
+# 💧 TeamWater API Wrapper
 
-A Flask-based REST API that provides access to Tiltify donation data through GraphQL queries. This application fetches leaderboard data, latest donations, and total amount raised for fundraising campaigns.
+A simple Flask application that fetches and exposes public Tiltify donation data for the [#TeamWater](https://teamwater.org) campaign — a historic effort to raise $40 million to provide clean water to two million people.
 
-## Features
+## 🌍 About #TeamWater
 
-- **Leaderboard Endpoint**: Get top donors for a campaign
-- **Latest Donations Endpoint**: Retrieve recent donation activity
-- **Total Raised Endpoint**: Get the total amount raised for a campaign
-- **Configurable Campaign ID**: Support for multiple fundraising campaigns
-- **Error Handling**: Graceful error responses with proper HTTP status codes
+> #TeamWater will be the biggest and most impactful campaign for clean water in history. With thousands of the world's top Creators talking about water, we're changing the world, one drop at a time.
 
-## API Endpoints
+---
 
-### 1. Leaderboard
+## 🚀 Features
 
-**Endpoint**: `GET /leaderboard`
+This app provides three public API endpoints:
 
-**Description**: Retrieves the top donors for a specific fundraising campaign.
+- `/leaderboard` – Returns top donors for the campaign.
+- `/donations` – Returns the latest donations made to the campaign.
+- `/total_raised` – Returns the total amount raised.
 
-**Query Parameters**:
-- `limit` (optional): Number of donors to return (default: 5, max: configurable)
-- `fact_id` (optional): Campaign ID (default: "0478358a-c4ff-4ab0-9cc7-5f0b328df9dc")
+All data is fetched from the [Tiltify API](https://tiltify.com) using GraphQL queries.
 
-**Example Request**:
-```
-GET /leaderboard?limit=10&fact_id=your-campaign-id
-```
+---
 
-**Example Response**:
-```json
-[
-  {
-    "id": "donor-id",
-    "name": "Donor Name",
-    "amount": 100.0,
-    "currency": "USD",
-    "comment": "Great cause!",
-    "avatar": "https://example.com/avatar.jpg"
-  }
-]
-```
+## 📦 Requirements
 
-### 2. Latest Donations
+- Python 3.7+
+- `Flask`
+- `requests`
 
-**Endpoint**: `GET /donations`
-
-**Description**: Retrieves the most recent donations for a campaign.
-
-**Query Parameters**:
-- `limit` (optional): Number of donations to return (default: 10)
-- `fact_id` (optional): Campaign ID (default: "0478358a-c4ff-4ab0-9cc7-5f0b328df9dc")
-
-**Example Request**:
-```
-GET /donations?limit=20&fact_id=your-campaign-id
-```
-
-**Example Response**:
-```json
-[
-  {
-    "id": "donation-id",
-    "donor_name": "Donor Name",
-    "donor_comment": "Supporting the cause!",
-    "amount": 50.0,
-    "currency": "USD",
-    "completed_at": "2024-01-15T10:30:00Z",
-    "fact_link": "https://tiltify.com/campaign-link",
-    "ownership": "Campaign Owner"
-  }
-]
-```
-
-### 3. Total Amount Raised
-
-**Endpoint**: `GET /total_raised`
-
-**Description**: Gets the total amount raised for a specific campaign.
-
-**Query Parameters**:
-- `fact_id` (optional): Campaign ID (default: "0478358a-c4ff-4ab0-9cc7-5f0b328df9dc")
-
-**Example Request**:
-```
-GET /total_raised?fact_id=your-campaign-id
-```
-
-**Example Response**:
-```json
-{
-  "total_raised": "1500.00",
-  "currency": "USD"
-}
-```
-
-## Setup and Installation
-
-### Prerequisites
-
-- Python 3.7 or higher
-- pip (Python package installer)
-
-### Installation
-
-1. **Clone or download the project files**
-
-2. **Install required dependencies**:
-   ```bash
-   pip install flask requests
-   ```
-
-3. **Run the application**:
-   ```bash
-   python app.py
-   ```
-
-The server will start on `http://localhost:5000` with debug mode enabled.
-
-### Environment Configuration
-
-The application uses the following default configuration:
-- **Tiltify GraphQL URL**: `https://api.tiltify.com/`
-- **Default Campaign ID**: `0478358a-c4ff-4ab0-9cc7-5f0b328df9dc`
-- **Server Port**: 5000
-
-## Usage Examples
-
-### Using curl
+### Install dependencies:
 
 ```bash
-# Get top 5 donors
-curl http://localhost:5000/leaderboard
-
-# Get latest 10 donations
-curl http://localhost:5000/donations
-
-# Get total amount raised
-curl http://localhost:5000/total_raised
-
-# Get top 10 donors for a specific campaign
-curl "http://localhost:5000/leaderboard?limit=10&fact_id=your-campaign-id"
+pip install Flask requests
 ```
 
-### Using JavaScript/Fetch
+---
 
-```javascript
-// Get leaderboard
-fetch('http://localhost:5000/leaderboard?limit=5')
-  .then(response => response.json())
-  .then(data => console.log(data));
+## ⚙️ Running the App
 
-// Get latest donations
-fetch('http://localhost:5000/donations?limit=10')
-  .then(response => response.json())
-  .then(data => console.log(data));
-
-// Get total raised
-fetch('http://localhost:5000/total_raised')
-  .then(response => response.json())
-  .then(data => console.log(data));
+```bash
+python app.py
 ```
 
-## Error Handling
+By default, the app will run on `http://localhost:5000`.
 
-The API returns appropriate HTTP status codes and error messages:
+---
 
-- **200**: Successful response
-- **500**: Server error (with error details in response body)
+## 🔌 API Usage
 
-Example error response:
-```json
-{
-  "error": "Failed to fetch data from Tiltify API"
-}
+### `/leaderboard`
+
+**Query Parameters:**
+- `limit`: *(optional)* number of donors to return (default: `5`)
+- `fact_id`: *(optional)* Tiltify fact (campaign) ID
+
+**Example:**
+
+```http
+GET /leaderboard?limit=10
 ```
 
-## Technical Details
+---
 
-- **Framework**: Flask
-- **HTTP Client**: requests library
-- **Data Format**: JSON
-- **API Type**: RESTful
-- **Backend**: Tiltify GraphQL API
+### `/donations`
 
-## Development
+**Query Parameters:**
+- `limit`: *(optional)* number of donations to return (default: `10`)
+- `fact_id`: *(optional)* Tiltify fact (campaign) ID
 
-### Project Structure
+**Example:**
 
-```
-teamwater/
-├── app.py          # Main Flask application
-├── donations.py    # Donation-related functionality
-├── latest.py       # Latest donations functionality
-├── leaderboard.py  # Leaderboard functionality
-└── README.md       # This file
+```http
+GET /donations?limit=5
 ```
 
-### Adding New Endpoints
+---
 
-To add new endpoints, follow the pattern established in the code:
+### `/total_raised`
 
-1. Create a GraphQL query function
-2. Add a Flask route handler
-3. Include proper error handling
-4. Document the endpoint in this README
+**Query Parameters:**
+- `fact_id`: *(optional)* Tiltify fact (campaign) ID
 
-## License
+**Example:**
 
-This project is open source and available under the MIT License.
+```http
+GET /total_raised
+```
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+## 🔒 Notes
 
-## Support
+- The default campaign fact ID is: `0478358a-c4ff-4ab0-9cc7-5f0b328df9dc` (used if `fact_id` is not specified).
+- This app uses the public Tiltify API, which does not require authentication for read-only data.
 
-For issues or questions, please create an issue in the repository or contact the development team.
+---
+
+## ❤️ Contributing
+
+Pull requests are welcome. For major changes, please open an issue first.
+
+---
+
+## 📄 License
+
+MIT — feel free to use and adapt.
